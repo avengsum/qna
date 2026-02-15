@@ -29,10 +29,17 @@ if query:
     "content": query
   })
   st.chat_message("user").markdown(query)
-  res = llm.invoke(st.session_state.messages)
-  st.chat_message("ai").markdown(res.content)
+
+  with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+
+        for chunk in llm.stream(st.session_state.messages):
+          if chunk.content:
+                full_response += chunk.content
+                message_placeholder.markdown(full_response)
 
   st.session_state.messages.append({
     "role":"ai",
-    "content": res.content
+    "content": full_response
   })
